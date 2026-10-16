@@ -1,0 +1,151 @@
+{
+  "name": "git-commit-msg-extension",
+  "displayName": "Git Commit Message Generator",
+  "description": "Generate git commit messages from staged or working tree changes using LLMs",
+  "version": "0.4.0",
+  "publisher": "fanghaidong",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "extensionDependencies": [
+    "vscode.git"
+  ],
+  "categories": [
+    "SCM Providers",
+    "Other"
+  ],
+  "activationEvents": [],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "gitCommitMsg.generate",
+        "title": "Generate Commit Message",
+        "category": "Git",
+        "icon": "$(sparkle)"
+      },
+      {
+        "command": "gitCommitMsg.cancel",
+        "title": "Cancel Commit Message Generation",
+        "category": "Git",
+        "icon": "$(loading~spin)"
+      }
+    ],
+    "menus": {
+      "commandPalette": [
+        {
+          "command": "gitCommitMsg.cancel",
+          "when": "false"
+        }
+      ],
+      "scm/title": [
+        {
+          "command": "gitCommitMsg.generate",
+          "group": "navigation@1",
+          "when": "!gitCommitMsg.isGenerating"
+        },
+        {
+          "command": "gitCommitMsg.cancel",
+          "group": "navigation@1",
+          "when": "gitCommitMsg.isGenerating"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Git Commit Message Generator",
+      "properties": {
+        "gitCommitMsgGen.provider": {
+          "type": "string",
+          "enum": [
+            "openai-chat",
+            "openai-responses",
+            "anthropic"
+          ],
+          "default": "openai-chat",
+          "description": "LLM API type to use for generating commit messages."
+        },
+        "gitCommitMsgGen.baseUrl": {
+          "type": "string",
+          "default": "https://api.openai.com/v1",
+          "description": "Base URL of the LLM API. For Anthropic use e.g. https://api.anthropic.com."
+        },
+        "gitCommitMsgGen.apiKey": {
+          "type": "string",
+          "default": "",
+          "description": "API key. Supports env:VAR_NAME to read from environment variables (recommended)."
+        },
+        "gitCommitMsgGen.model": {
+          "type": "string",
+          "default": "",
+          "description": "Model name. Empty uses a provider default (gpt-4o-mini / claude-3-5-haiku-latest)."
+        },
+        "gitCommitMsgGen.language": {
+          "type": "string",
+          "default": "en",
+          "description": "Language for the generated commit message, e.g. en, zh-CN."
+        },
+        "gitCommitMsgGen.temperature": {
+          "type": "number",
+          "default": 0.2,
+          "description": "Sampling temperature for the LLM."
+        },
+        "gitCommitMsgGen.maxDiffCharacters": {
+          "type": "number",
+          "default": 60000,
+          "description": "Maximum diff characters sent to the LLM. Larger diffs are truncated."
+        },
+        "gitCommitMsgGen.conventionalCommits.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Generate Conventional Commits compliant messages."
+        },
+        "gitCommitMsgGen.conventionalCommits.types": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "feat",
+            "fix",
+            "docs",
+            "style",
+            "refactor",
+            "perf",
+            "test",
+            "build",
+            "ci",
+            "chore",
+            "revert"
+          ],
+          "description": "Allowed Conventional Commits types."
+        },
+        "gitCommitMsgGen.conventionalCommits.scopeRequired": {
+          "type": "boolean",
+          "default": false,
+          "description": "Require a scope in the commit header."
+        },
+        "gitCommitMsgGen.conventionalCommits.subjectMaxLength": {
+          "type": "number",
+          "default": 72,
+          "description": "Maximum subject length, excluding type/scope prefix."
+        },
+        "gitCommitMsgGen.conventionalCommits.additionalInstructions": {
+          "type": "string",
+          "default": "",
+          "description": "Extra prompt instructions for customizing Conventional Commits output."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "compile": "tsc -p .",
+    "watch": "tsc -p . --watch",
+    "package": "vsce package"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "@types/vscode": "^1.85.0",
+    "typescript": "^5.4.5"
+  }
+}
